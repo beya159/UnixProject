@@ -7,20 +7,46 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const db = mysql.createConnection({
+const dbConfig = {
     host: "db",
     user: "root",
     password: "secretpassword",
     database: "campusconfess"
-});
+};
 
-db.connect(function(err) {
-    if (err) {
-        console.log("Database connection failed");
-    } else {
-        console.log("Connected to MySQL");
-    }
-});
+let db;
+
+//db.connect(function(err) {
+    //if (err) {
+        //console.log("Database connection failed");
+    //} else {
+        //console.log("Connected to MySQL");
+    //}
+//});
+
+function handleDisconnect(){
+    db = mysql.createConnection(dbConfig);
+
+    db.connect(function(err){
+        if(err){
+            console.log("Database connection failed. Error Code:", err.code);
+            setTimeout(handleDisconnect, 5000); // wait 5 seconds and try agin
+        } else{
+            console.log("Connected to MySQL successfully");
+        }
+    });
+
+    db.on('error', function (err){
+        console.log('Database error:', err.code);
+        if (err.code == 'PROTOCOL_CONNECTION_LOST' || err.code == 'ECONNREFUSED'){
+            handleDisconnect();
+        } else {
+            console.error("Critical DB error:", err);
+        }
+    });
+}
+
+handleDisconnect();
 
 // to save confessions
 app.post("/confessions", function(req, res) {
@@ -29,7 +55,10 @@ app.post("/confessions", function(req, res) {
     const sql = "INSERT INTO confessions (content) VALUES (?)";
 
     db.query(sql, [content], function(err, result) {
-        if (err) throw err;
+        if (err) {
+            console.error("Insert error:", err);
+            return res.status(500).send("Error saving data");
+        }
         res.send("Confession saved");
     });
 });
@@ -39,7 +68,9 @@ app.get("/confessions", function(req, res) {
     const sql = "SELECT * FROM confessions ORDER BY created_at DESC";
 
     db.query(sql, function(err, results) {
-        if (err) throw err;
+        if (err) {
+            return res.status(500).send("Database error");
+        }
         res.json(results);
     });
 });

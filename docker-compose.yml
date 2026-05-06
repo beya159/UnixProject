@@ -5,13 +5,16 @@ services:
   db: #for database
     image: mysql:8.0 #to download the official MySQL software
     container_name: cc-database
+    command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_DATABASE: campusconfess
-      MYSQL_ROOT_PASSWORD: secretpassword
+      - MYSQL_DATABASE=campusconfess
+      - MYSQL_ROOT_PASSWORD=secretpassword
     volumes: # to run it (tell docker to look in db-confg and find the db and run it
       - ./db-config:/docker-entrypoint-initdb.d/
+    networks:
+      - campus-net
     ports:
-      - "3306:3306" #connects to windows mysql worknech in case i wanna check data while container is running
+      - "3307:3306" #connects to windows mysql worknech in case i wanna check data while container is running
   web: #for Node.js
     build: ./web-app #use the dockerfile instead of generic images
     container_name: cc-app
@@ -19,6 +22,8 @@ services:
       - "3000:3000"
     depends_on: # so that it doeesnt start until the db is ready
       - db
+    networks:
+      - campus-net
   cdn: #for static files/images (cdn)
     image: nginx:alpine
     container_name: cc-cdn
@@ -26,3 +31,9 @@ services:
       - "8081:80"
     volumes:
       - ./cdn:/usr/share/nginx/html
+    networks:
+      - campus-net
+
+networks:
+  campus-net:
+    driver: bridge
