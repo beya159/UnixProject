@@ -1,6 +1,19 @@
 #!/bin/bash
 
-echo "Starting CampusConfess System"
+if docker compose version >/dev/null 2>&1; then
+    DOCKER_CMD="docker compose"
+elif docker-compose version >/dev/null 2>&1; then
+    DOCKER_CMD="docker-compose"
+else
+    echo "Error: Docker Compose is not installed!"
+    exit 1
+fi
+
+echo "Starting CampusConfess System using: $DOCKER_CMD"
+
+# --- USE THE DETECTED COMMAND ---
+$DOCKER_CMD down
+$DOCKER_CMD up -d --build
 
 echo "Cleaning old containes and volumes"
 docker-compose down
