@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CampusConfess - View</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+
+    <header>
+        <h1>All Confessions</h1>
+        <nav>
+            <a href="Page1.html">Submit Confession</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container" id="confessionList">
+            <p>Loading confessions...</p>
+        </div>
+    </main>
+
+    <footer>
+        <p> 2026 CampusConfess</p>
+    </footer>
+
+    <script>
+    function loadConfessions() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "http://localhost:3000/confessions", true);
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                var list = document.getElementById("confessionList");
+
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    list.innerHTML = "";
+
+                    if (!data || data.length === 0) {
+                        list.innerHTML = "<p>No confessions yet.</p>";
+                        return;
+                    }
+
+                    for (var i = 0; i < data.length; i++) {
+                        var card = document.createElement("div");
+                        card.className = "card";
+
+                        var text = document.createElement("p");
+                        text.innerText = data[i].content;
+
+                        var date = document.createElement("small");
+                        date.innerText = new Date(data[i].created_at).toLocaleString();
+
+                        card.appendChild(text);
+                        card.appendChild(date);
+
+                        list.appendChild(card);
+                    }
+
+                } else {
+                    list.innerHTML = "<p>Error loading confessions.</p>";
+                }
+            }
+        };
+
+        xhr.send();
+    }
+
+    window.onload = loadConfessions;
+    </script>
+
+    </body>
+</html>

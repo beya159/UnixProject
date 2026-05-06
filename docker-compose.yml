@@ -1,0 +1,28 @@
+version: '3.8'
+# i have to mandatorily specify the version\
+
+services:
+  db: #for database
+    image: mysql:8.0 #to download the official MySQL software
+    container_name: cc-database
+    environment:
+      MYSQL_DATABASE: campusconfess
+      MYSQL_ROOT_PASSWORD: secretpassword
+    volumes: # to run it (tell docker to look in db-confg and find the db and run it
+      - ./db-config:/docker-entrypoint-initdb.d/
+    ports:
+      - "3306:3306" #connects to windows mysql worknech in case i wanna check data while container is running
+  web: #for Node.js
+    build: ./web-app #use the dockerfile instead of generic images
+    container_name: cc-app
+    ports:
+      - "3000:3000"
+    depends_on: # so that it doeesnt start until the db is ready
+      - db
+  cdn: #for static files/images (cdn)
+    image: nginx:alpine
+    container_name: cc-cdn
+    ports:
+      - "8081:80"
+    volumes:
+      - ./cdn:/usr/share/nginx/html

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CampusConfess - Submit</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+
+    <header>
+        <h1>CampusConfess</h1>
+        <nav>
+            <a href="Page2.html">View Confessions</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <h2>Submit a Confession</h2>
+        <textarea id="confession" placeholder="Write your anonymous confession..."></textarea>
+        <button onclick="submitConfession()">Submit</button>
+        <p id="message"></p>
+    </div>
+
+
+    </main>
+
+    <footer>
+        <p> 2026 CampusConfess</p>
+    </footer>
+
+    <script>
+    function submitConfession() {
+        var text = document.getElementById("confession").value;
+        var message = document.getElementById("message");
+
+        if (text.trim() == "") {
+            message.innerText = "Confession cannot be empty.";
+            return;
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "http://localhost:3000/confessions", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    message.innerText = "Confession submitted!";
+                    document.getElementById("confession").value = "";
+                } else {
+                    message.innerText = "Error submitting confession.";
+                }
+            }
+        };
+
+        var data = JSON.stringify({ content: text });
+        xhr.send(data);
+    }
+    </script>
+
+    </body>
+</html>
