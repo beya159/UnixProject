@@ -1,21 +1,22 @@
 #!/bin/bash
 
-echo "Starting CampusConfess System"
+echo "Starting CampusConfess..."
 
-echo "Cleaning old containers and volumes"
+# Stop old containers
 docker compose down
 
-echo "Building and starting containers"
+# Build and start containers
 docker compose up -d --build
 
-echo "Waiting for containers to start"
-sleep 20
+# Wait a few seconds
+sleep 10
 
-echo "Checking running containers"
+echo ""
+echo "Containers running:"
 docker ps
 
-echo "CampusConfess should now be running:"
-echo "Frontend: http://localhost:3000/Page1.html"
-echo "View page: http://localhost:3000/Page2.html"
+echo ""
+echo "Open these in browser:"
+echo "Submit page: http://localhost:3000/Page1.html"
+echo "View confessions: http://localhost:3000/Page2.html"
 echo "CDN: http://localhost:8081"
-echo "Backend API: http://localhost:3000/confessions"
