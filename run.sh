@@ -11,7 +11,6 @@ fi
 
 echo "Starting CampusConfess System using: $DOCKER_CMD"
 
-# --- USE THE DETECTED COMMAND ---
 $DOCKER_CMD down
 $DOCKER_CMD up -d --build
 

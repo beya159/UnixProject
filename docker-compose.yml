@@ -1,5 +1,5 @@
 version: '3.8'
-# i have to mandatorily specify the version\
+# i have to mandatorily specify the version
 
 services:
   db: #for database
@@ -9,12 +9,14 @@ services:
     environment:
       - MYSQL_DATABASE=campusconfess
       - MYSQL_ROOT_PASSWORD=secretpassword
-    volumes: # to run it (tell docker to look in db-confg and find the db and run it
+    volumes: # to run it (tell docker to look in db-config and find the db)
       - ./db-config:/docker-entrypoint-initdb.d/
+      - cc-data:/var/lib/mysql
     networks:
       - campus-net
     ports:
-      - "3307:3306" #connects to windows mysql worknech in case i wanna check data while container is running
+      - "3307:3306" #connects to windows mysql worknech in case i want to access it
+
   web: #for Node.js
     build: ./web-app #use the dockerfile instead of generic images
     container_name: cc-app
@@ -24,6 +26,7 @@ services:
       - db
     networks:
       - campus-net
+
   cdn: #for static files/images (cdn)
     image: nginx:alpine
     container_name: cc-cdn
@@ -37,3 +40,6 @@ services:
 networks:
   campus-net:
     driver: bridge
+
+volumes:
+  cc-data:
