@@ -1,22 +1,29 @@
 #!/bin/bash
 
-echo "Starting CampusConfess..."
+echo "Starting CampusConfess System"
 
-# Stop old containers
+echo "Cleaning old containers and volumes"
 docker compose down
 
-# Build and start containers
+echo "Building and starting containers"
 docker compose up -d --build
 
-# Wait a few seconds
-sleep 10
+echo "Waiting for the database to initialise"
 
-echo ""
-echo "Containers running:"
-docker ps
+MAX_RETRIES=10
+COUNT=0
 
-echo ""
-echo "Open these in browser:"
-echo "Submit page: http://localhost:3000/Page1.html"
-echo "View confessions: http://localhost:3000/Page2.html"
-echo "CDN: http://localhost:8081"
+while ! curl -s http://127.0.0.1:3000/confessions | grep -q "\[" && [ $COUNT -lt $MAX_RETRIES ]
+do
+    echo "Database is still initializing... (Attempt $((COUNT+1))/$MAX_RETRIES)"
+    sleep 5
+    ((COUNT++))
+done
+
+if [ $COUNT -eq $MAX_RETRIES ]; then
+    echo "System taking too long (check 'docker logs cc-app' for errors)"
+else
+    echo "System works"
+    echo "Frontend: http://localhost:8081"
+    echo "Backend: http://localhost:3000/confessions"
+fi
